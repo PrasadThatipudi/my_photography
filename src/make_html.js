@@ -79,14 +79,12 @@ const parseImagePaths = (imagePaths) =>
 
 const images = parseImagePaths(imagePaths);
 const concatPathWithDir = ({ directory, files }) =>
-  files.map((file) => `${directory}/${file}`);
+  files.map((file) => `../${directory}/${file}`);
 
 const debug = function (arg) {
   console.log(arg);
   return arg;
 };
-
-const selfClosingTags = ["img", "embed"];
 
 const intoHtml = (tags, selfClosingTags = ["img", "embed"]) => {
   if (!Array.isArray(tags)) return tags;
@@ -96,14 +94,14 @@ const intoHtml = (tags, selfClosingTags = ["img", "embed"]) => {
     ([property, value]) => `${property}='${value}'`
   );
 
-  if (tag in selfClosingTags) return `<${tag} ${attributesStr}/>`;
+  if (selfClosingTags.includes(tag)) return `<${tag} ${attributesStr}/>`;
 
   return `<${tag} ${attributesStr}>${innerHtml
-    .map(intoHtml)
+    .map((tags) => intoHtml(tags, selfClosingTags))
     .join("")}</${tag}>`;
 };
 
-const insertImages = (images) =>
+const makeImageTags = (images) =>
   images.map((imgPath) => ["img", { src: imgPath }]);
 
 const makeHtmlPages = (images) =>
@@ -113,5 +111,9 @@ const makeHtmlPages = (images) =>
       "html",
       {},
       ["head", {}],
-      ["body", {}, ...insertImages(imagePaths)],
+      ["body", {}, ...makeImageTags(imagePaths)],
     ]);
+
+const htmlFileContents = makeHtmlPages(images).map((tags) => intoHtml(tags));
+
+console.log(htmlFileContents.at(2));
