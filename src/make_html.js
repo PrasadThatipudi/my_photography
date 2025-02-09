@@ -90,9 +90,9 @@ const intoHtml = (tags, selfClosingTags = ["img", "embed"]) => {
   if (!Array.isArray(tags)) return tags;
 
   const [tag, attributes, ...innerHtml] = tags;
-  const attributesStr = Object.entries(attributes).map(
-    ([property, value]) => `${property}='${value}'`
-  );
+  const attributesStr = Object.entries(attributes)
+    .map(([property, value]) => `${property}='${value}'`)
+    .join(";");
 
   if (selfClosingTags.includes(tag)) return `<${tag} ${attributesStr}/>`;
 
